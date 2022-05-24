@@ -1,0 +1,22 @@
+{
+  "name": "Smart Google Suite Color Picker",
+  "description": "Enhance the the color picker in Google suite products with \"Recent Colors\" and \"All Colors on Page\"",
+  "version": "1.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "webRequest"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "host_permissions": [
+    "*://docs.google.com/"
+  ]
+}
