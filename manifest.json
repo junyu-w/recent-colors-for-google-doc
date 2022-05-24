@@ -8,7 +8,6 @@
   },
   "permissions": [
     "storage",
-    "activeTab",
     "scripting",
     "tabs",
     "webRequest"
@@ -18,5 +17,16 @@
   },
   "host_permissions": [
     "*://docs.google.com/"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://docs.google.com/*"
+      ],
+      "run_at": "document_idle",
+      "js": [
+        "content_script.js"
+      ]
+    }
   ]
 }

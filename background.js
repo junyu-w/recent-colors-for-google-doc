@@ -8,9 +8,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     try {
       const googleDocId = getGoogleDocIdFromUrl(commitedUrl);
       if (googleDocId != "") {
-        console.log(`Google Doc ID is ${googleDocId}`);
         bootstrapGoogleDocInfo(googleDocId, tabId, sessionId, commitedUrl);
-        registerColorRequestListener(tabId);
       }
     } catch (error) {
       console.error(`Failed to get google doc ID - Error: ${error}`);
@@ -26,7 +24,6 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
     const keys = Object.keys(items);
     for (let idx = 0; idx < keys.length; idx++) {
       const key = keys[idx]
-      const val = items[keys[idx]];
 
       if (key === toDelete) {
         chrome.storage.local.remove(key);
@@ -42,13 +39,14 @@ const getObjectKey = tabId => `${KEY_PREFIX}:${tabId}`;
 
 // bootstrap google doc info
 const bootstrapGoogleDocInfo = (docId, tabId, sessionId, commitedUrl) => {
-  chrome.storage.local.get(docId, items => {
-    const docInfo = items[docId];
+  const key = getObjectKey(tabId);
+  chrome.storage.local.get(key, items => {
+    const docInfo = items[key];
     if (docInfo != null) {
-      console.log(`Google Doc ${docId} is already bootstrapped`);
+      console.log(`Google Doc ${docId} is already bootstrapped on tab ${tabId}`);
       return;
     }
-    const key = getObjectKey(tabId);
+
     chrome.storage.local.set({
       [key]: {
         docId,
@@ -72,7 +70,6 @@ const bootstrapGoogleDocInfo = (docId, tabId, sessionId, commitedUrl) => {
 const getGoogleDocIdFromUrl = url => {
   const u = new URL(url);
   if (u.host != "docs.google.com") {
-    console.log("Not a google doc url");
     return "";
   }
   const components = u.pathname.split("/")
@@ -109,34 +106,33 @@ const getFirstRegexMatch = (regex, str) => {
 
 const NUM_RECENT_COLORS_LIMIT = 20;
 
-const registerColorRequestListener = (tabId) => {
-  chrome.webRequest.onBeforeRequest.addListener(details => {
-    const url = new URL(details.url);
-    const components = url.pathname.split("/")
-    if (details.method === "POST" && components[components.length - 1] === "save") {
-      console.log("requestn sent! ", details);
-      console.log(details.requestBody.formData);
+chrome.webRequest.onBeforeRequest.addListener(details => {
+  const tabId = details.tabId;
+  const url = new URL(details.url);
+  const components = url.pathname.split("/")
+  if (details.method === "POST" && components[components.length - 1] === "save") {
+    const commands = details.requestBody.formData.bundles;
+    if (commands != null && commands != undefined) {
+      console.log("Commands: ", commands);
 
-      const commands = details.requestBody.formData.bundles;
-      if (commands != null && commands != undefined) {
-        const cmd = commands[0];
-        const fgc = getForegroundColor(cmd);
-        const bgc = getBackgroundColor(cmd);
+      const cmd = commands[0];
+      // TODO: sometimes this get fired for other commands too
+      const fgc = getForegroundColor(cmd);
+      const bgc = getBackgroundColor(cmd);
 
-        if (fgc != null) {
-          saveRecentColor(tabId, FG_COLOR, fgc);
-        }
-        if (bgc != null) {
-          saveRecentColor(tabId, BG_COLOR, bgc);
-        }
+      if (fgc != null) {
+        saveRecentColor(tabId, FG_COLOR, fgc);
+      }
+      if (bgc != null) {
+        saveRecentColor(tabId, BG_COLOR, bgc);
       }
     }
-  }, {
-    urls: ["*://docs.google.com/document/d*"]
-  }, [
-    "requestBody"
-  ]);
-}
+  }
+}, {
+  urls: ["*://docs.google.com/document/d*"]
+}, [
+  "requestBody"
+]);
 
 
 const FG_COLOR = "fgc";
@@ -175,6 +171,11 @@ const saveRecentColor = (tabId, fgOrBg, color) => {
     };
 
     chrome.storage.local.set({ [key]: newData });
-    console.log(`Saved recent color ${color} to ${fgOrBg} for doc ${newData.docId}. New colors list: ${newColors}`);
+    console.log(`Saved recent color ${color} to ${fgOrBg} for doc ${newData.docId} on tab ${tabId}. New colors list: ${newColors}`);
+
+    // send updates to content script
+    chrome.tabs.sendMessage(tabId, newData, response => {
+      console.log("Received response from content script: ", response);
+    })
   });
 }
