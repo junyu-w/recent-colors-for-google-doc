@@ -1,3 +1,6 @@
+const KEY_PREFIX = "google_doc_tab"
+const getObjectKey = tabId => `${KEY_PREFIX}:${tabId}`;
+
 // Register initial google doc info upon tab loading complete
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   console.log(`A new tab is updated - tab id: ${tab.id}`);
@@ -9,6 +12,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       const googleDocId = getGoogleDocIdFromUrl(commitedUrl);
       if (googleDocId != "") {
         bootstrapGoogleDocInfo(googleDocId, tabId, sessionId, commitedUrl);
+        notifyTabLoadingCompletion(tabId);
       }
     } catch (error) {
       console.error(`Failed to get google doc ID - Error: ${error}`);
@@ -33,9 +37,6 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
     }
   })
 })
-
-const KEY_PREFIX = "google_doc_tab"
-const getObjectKey = tabId => `${KEY_PREFIX}:${tabId}`;
 
 // bootstrap google doc info
 const bootstrapGoogleDocInfo = (docId, tabId, sessionId, commitedUrl) => {
@@ -104,7 +105,7 @@ const getFirstRegexMatch = (regex, str) => {
   return null;
 }
 
-const NUM_RECENT_COLORS_LIMIT = 20;
+const NUM_RECENT_COLORS_LIMIT = 10;
 
 chrome.webRequest.onBeforeRequest.addListener(details => {
   const tabId = details.tabId;
@@ -172,10 +173,17 @@ const saveRecentColor = (tabId, fgOrBg, color) => {
 
     chrome.storage.local.set({ [key]: newData });
     console.log(`Saved recent color ${color} to ${fgOrBg} for doc ${newData.docId} on tab ${tabId}. New colors list: ${newColors}`);
-
-    // send updates to content script
-    chrome.tabs.sendMessage(tabId, newData, response => {
-      console.log("Received response from content script: ", response);
-    })
   });
+}
+
+const MESSAGE_TYPE_TAB_STATUS = "MESSAGE_TYPE_TAB_STATUS";
+
+const notifyTabLoadingCompletion = tabId => {
+  chrome.tabs.sendMessage(tabId, {
+    type: MESSAGE_TYPE_TAB_STATUS,
+    tabStatus: "complete",
+    tabId
+  }, response => {
+    console.log("Received response from content script: ", response);
+  })
 }
