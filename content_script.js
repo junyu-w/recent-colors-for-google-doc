@@ -164,24 +164,33 @@ const insertRecentColorsSectionIntoMenu = (colorMenu, recentColors, isFg) => {
   colorMenu.insertBefore(palleteElement, firstChild);
 }
 
+/**
+ * Toggle to highlight the matching color cell with a pacman animation
+ */
 const toggleHighlightMatchingColorCell = (colorMenu, rgbColor, toggleOnOrOff) => {
   const matchingColorEl = colorMenu.querySelector(`[style=\"background-color: ${rgbColor}; user-select: none;\"]`);
-  const cell = matchingColorEl.parentNode;
-  const classList = cell.getAttribute("class").split(" ");
+  const classList = matchingColorEl.getAttribute("class").split(" ");
   
-  const selectedCls = "docs-material-colorpalette-cell-selected";
+  const selectedCls = "pacman";
 
   if (toggleOnOrOff === "on") {
     if (!classList.includes(selectedCls)) {
       classList.push(selectedCls);
+
+      const pacmanMouth = document.createElement("div");
+      pacmanMouth.setAttribute("class", "pacman-mouth");
+      matchingColorEl.appendChild(pacmanMouth);
     }
   } else if (toggleOnOrOff === "off") {
     if (classList.includes(selectedCls)) {
       classList.splice(classList.indexOf(selectedCls), 1);
+
+      const pacmanMouthEl = document.getElementsByClassName("pacman-mouth")[0];
+      pacmanMouthEl.remove();
     }
   }
 
-  cell.setAttribute("class", classList.join(" "));
+  matchingColorEl.setAttribute("class", classList.join(" "));
 }
 
 const hexColorToRgb = (hexColor) => {

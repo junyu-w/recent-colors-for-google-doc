@@ -20,13 +20,10 @@
   ],
   "content_scripts": [
     {
-      "matches": [
-        "*://docs.google.com/*"
-      ],
+      "matches": ["*://docs.google.com/*"],
       "run_at": "document_idle",
-      "js": [
-        "content_script.js"
-      ]
+      "js": ["content_script.js"],
+      "css": ["content.css"]
     }
   ]
 }
