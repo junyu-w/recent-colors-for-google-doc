@@ -207,6 +207,3 @@ const hexColorToRgb = (hexColor) => {
   ];
   return aRgb;
 }
-
-"docs-material-colorpalette-cell "
-  

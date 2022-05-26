@@ -1,6 +1,6 @@
 {
-  "name": "Smart Google Suite Color Picker",
-  "description": "Enhance the the color picker in Google suite products with \"Recent Colors\" and \"All Colors on Page\"",
+  "name": "Recent Colors for Google Doc",
+  "description": "No longer need to struggle with finding the last color used with your bare eyes. I got you covered.",
   "version": "1.0",
   "manifest_version": 3,
   "background": {
