@@ -43,25 +43,25 @@ const insertNewColorSections = tabId => {
 const refreshRecentColorsSection = (tabId, isFg) => {
   const menuId = isFg ? ID_COLOR_MENU_FG : ID_COLOR_MENU_BG;
   let textColorMenu = document.getElementById(menuId);
-  if (textColorMenu == null) {
+  if (textColorMenu === null) {
     textColorMenu = getColorPickerMenuAfterFirstClick(isFg);
   }
 
   const key = getObjectKey(tabId);
   chrome.storage.local.get(key, items => {
     const data = items[key];
-    removeRecentColorsSection(textColorMenu, isFg);
+    removeRecentColorsSection(isFg);
     insertRecentColorsSectionIntoMenu(textColorMenu, isFg ? data.recentColorsFg : data.recentColorsBg, isFg);
   })
 }
 
 const getColorPickerMenuAfterFirstClick = (isFg) => {
   const colorPickerMenus = document.getElementsByClassName("docs-colormenuitems");
-  if (colorPickerMenus.length == 0) {
+  if (colorPickerMenus.length === 0) {
     console.log("Color picker menus still haven't been populated")
     return;
   }
-  const colorMenu = colorPickerMenus.length == 1 ? colorPickerMenus[0] : colorPickerMenus[1];
+  const colorMenu = colorPickerMenus.length === 1 ? colorPickerMenus[0] : colorPickerMenus[1];
   
   // mark the menu for future retrieval
   const menuId = isFg ? ID_COLOR_MENU_FG : ID_COLOR_MENU_BG;
@@ -70,7 +70,7 @@ const getColorPickerMenuAfterFirstClick = (isFg) => {
   return colorMenu;
 }
 
-const removeRecentColorsSection = (colorMenu, isFg) => {
+const removeRecentColorsSection = (isFg) => {
   let header;
   let pallete;
   if (isFg) {
@@ -102,7 +102,7 @@ const insertRecentColorsSectionIntoMenu = (colorMenu, recentColors, isFg) => {
 
   const title = document.createElement("div");
   title.setAttribute("class", "docs-colormenuitems-custom-header");
-  title.textContent = "RECENT COLORS";
+  title.textContent = "RECENT COLORS (HOVER ONLY)";
 
   headerElement.appendChild(innert);
   innert.appendChild(title);
@@ -131,14 +131,31 @@ const insertRecentColorsSectionIntoMenu = (colorMenu, recentColors, isFg) => {
   tbody.appendChild(row);
 
   for (let i = 0; i < recentColors.length; i++) {
+    const hexColor = recentColors[i];
+    const rgbColor = `rgb(${hexColorToRgb(hexColor).join(", ")})`;
+
     const cell = document.createElement("td");
     cell.setAttribute("class", "docs-material-colorpalette-cell");
     cell.setAttribute("id", `docs-material-colorpalette-cell-${i}`);
     cell.setAttribute("role", "gridcell");
 
+    cell.addEventListener("mouseenter", (el, event) => {
+      cell.setAttribute("class", "docs-material-colorpalette-cell goog-control-hover docs-material-colorpalette-cell-hover");
+      toggleHighlightMatchingColorCell(colorMenu, rgbColor, "on");
+    })
+    cell.addEventListener("mouseleave", (el, event) => {
+      cell.setAttribute("class", "docs-material-colorpalette-cell");
+      toggleHighlightMatchingColorCell(colorMenu, rgbColor, "off");
+    })
+
     const color = document.createElement("div");
-    color.setAttribute("class", "docs-material-colorpalette-colorswatch docs-material-colorpalette-colorswatch-dark");
-    color.setAttribute("style", `background-color: ${recentColors[i]}`);
+    color.setAttribute("class", "docs-material-colorpalette-colorswatch docs-material-colorpalette-colorswatch-border docs-material-colorpalette-colorswatch-dark");
+    color.setAttribute("style", `background-color: ${hexColor}`);
+    color.setAttribute("title", `Recent color ${hexColor}`);
+
+    color.addEventListener("click", (el, event) => {
+      const matchingColorEl = colorMenu.querySelector(`[style=\"background-color: ${rgbColor}; user-select: none;\"]`);
+    })  
 
     cell.appendChild(color);
     row.appendChild(cell);
@@ -147,4 +164,40 @@ const insertRecentColorsSectionIntoMenu = (colorMenu, recentColors, isFg) => {
   colorMenu.insertBefore(palleteElement, firstChild);
 }
 
+const toggleHighlightMatchingColorCell = (colorMenu, rgbColor, toggleOnOrOff) => {
+  const matchingColorEl = colorMenu.querySelector(`[style=\"background-color: ${rgbColor}; user-select: none;\"]`);
+  const cell = matchingColorEl.parentNode;
+  const classList = cell.getAttribute("class").split(" ");
+  
+  const selectedCls = "docs-material-colorpalette-cell-selected";
+
+  if (toggleOnOrOff === "on") {
+    if (!classList.includes(selectedCls)) {
+      classList.push(selectedCls);
+    }
+  } else if (toggleOnOrOff === "off") {
+    if (classList.includes(selectedCls)) {
+      classList.splice(classList.indexOf(selectedCls), 1);
+    }
+  }
+
+  cell.setAttribute("class", classList.join(" "));
+}
+
+const hexColorToRgb = (hexColor) => {
+  if (hexColor.length != 7) {
+    return null;
+  }
+  const colorDigits = hexColor.slice(1, hexColor.length);
+
+  var aRgbHex = colorDigits.match(/.{1,2}/g);
+  var aRgb = [
+    parseInt(aRgbHex[0], 16),
+    parseInt(aRgbHex[1], 16),
+    parseInt(aRgbHex[2], 16)
+  ];
+  return aRgb;
+}
+
+"docs-material-colorpalette-cell "
   
