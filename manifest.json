@@ -1,7 +1,7 @@
 {
   "name": "Recent Colors for Google Doc",
   "description": "Can't tell how green or blue your last selected color was? I feel your pain.",
-  "version": "1.0",
+  "version": "0.1.0",
   "manifest_version": 3,
   "background": {
     "service_worker": "background.js"
