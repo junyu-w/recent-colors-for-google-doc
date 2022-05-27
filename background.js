@@ -3,7 +3,6 @@ const getObjectKey = tabId => `${KEY_PREFIX}:${tabId}`;
 
 // Register initial google doc info upon tab loading complete
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  console.log(`A new tab is updated - tab id: ${tab.id}`);
   if (changeInfo.status === "complete") {
     const commitedUrl = tab.url;
     const sessionId = tab.sessionId;
