@@ -90,6 +90,10 @@ const removeRecentColorsSection = (isFg) => {
 }
 
 const insertRecentColorsSectionIntoMenu = (colorMenu, recentColors, isFg) => {
+  if (recentColors.length === 0) {
+    return;
+  }
+
   const firstChild = colorMenu.firstChild;
 
   // insert header section
