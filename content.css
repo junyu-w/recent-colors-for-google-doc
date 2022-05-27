@@ -5,7 +5,8 @@
 }
 
 .pacman-mouth {
-  background: #fff;
+  --class-item-bg: #fff;
+  background: var(--class-item-bg);
   position: absolute;
   width: 100%;
   height: 100%;

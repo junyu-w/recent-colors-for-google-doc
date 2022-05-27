@@ -132,7 +132,6 @@ const insertRecentColorsSectionIntoMenu = (colorMenu, recentColors, isFg) => {
 
   for (let i = 0; i < recentColors.length; i++) {
     const hexColor = recentColors[i];
-    const rgbColor = `rgb(${hexColorToRgb(hexColor).join(", ")})`;
 
     const cell = document.createElement("td");
     cell.setAttribute("class", "docs-material-colorpalette-cell");
@@ -141,21 +140,17 @@ const insertRecentColorsSectionIntoMenu = (colorMenu, recentColors, isFg) => {
 
     cell.addEventListener("mouseenter", (el, event) => {
       cell.setAttribute("class", "docs-material-colorpalette-cell goog-control-hover docs-material-colorpalette-cell-hover");
-      toggleHighlightMatchingColorCell(colorMenu, rgbColor, "on");
+      toggleHighlightMatchingColorCell(colorMenu, hexColor, "on");
     })
     cell.addEventListener("mouseleave", (el, event) => {
       cell.setAttribute("class", "docs-material-colorpalette-cell");
-      toggleHighlightMatchingColorCell(colorMenu, rgbColor, "off");
+      toggleHighlightMatchingColorCell(colorMenu, hexColor, "off");
     })
 
     const color = document.createElement("div");
     color.setAttribute("class", "docs-material-colorpalette-colorswatch docs-material-colorpalette-colorswatch-border docs-material-colorpalette-colorswatch-dark");
     color.setAttribute("style", `background-color: ${hexColor}`);
-    color.setAttribute("title", `Recent color ${hexColor}`);
-
-    color.addEventListener("click", (el, event) => {
-      const matchingColorEl = colorMenu.querySelector(`[style=\"background-color: ${rgbColor}; user-select: none;\"]`);
-    })  
+    color.setAttribute("title", `Recent color ${hexColor}`);  
 
     cell.appendChild(color);
     row.appendChild(cell);
@@ -167,19 +162,18 @@ const insertRecentColorsSectionIntoMenu = (colorMenu, recentColors, isFg) => {
 /**
  * Toggle to highlight the matching color cell with a pacman animation
  */
-const toggleHighlightMatchingColorCell = (colorMenu, rgbColor, toggleOnOrOff) => {
-  const matchingColorEl = colorMenu.querySelector(`[style=\"background-color: ${rgbColor}; user-select: none;\"]`);
+const toggleHighlightMatchingColorCell = (colorMenu, hexColor, toggleOnOrOff) => {
+  const rgbColor = hexColorToRgb(hexColor);
+  const matchingColorEl = colorMenu.querySelector(`[style=\"background-color: rgb(${rgbColor.join(", ")}); user-select: none;\"]`);
   const classList = matchingColorEl.getAttribute("class").split(" ");
   
-  // TODO: dynamically set pacman mouth background color based on the cell color
   const selectedCls = "pacman";
 
   if (toggleOnOrOff === "on") {
     if (!classList.includes(selectedCls)) {
       classList.push(selectedCls);
 
-      const pacmanMouth = document.createElement("div");
-      pacmanMouth.setAttribute("class", "pacman-mouth");
+      const pacmanMouth = getPacmanMouth(hexColor);
       matchingColorEl.appendChild(pacmanMouth);
     }
   } else if (toggleOnOrOff === "off") {
@@ -192,6 +186,20 @@ const toggleHighlightMatchingColorCell = (colorMenu, rgbColor, toggleOnOrOff) =>
   }
 
   matchingColorEl.setAttribute("class", classList.join(" "));
+}
+
+const getPacmanMouth = (hexColor) => {
+  const pacmanMouth = document.createElement("div");
+  pacmanMouth.setAttribute("class", "pacman-mouth");
+
+  // adjust pacman mouth background color based on cell color
+  const isLight = isLightColor(hexColor);
+  if (isLight) {
+    pacmanMouth.style.setProperty("--class-item-bg", "#000");
+  } else {
+    pacmanMouth.style.setProperty("--class-item-bg", "#fff");
+  }
+  return pacmanMouth;
 }
 
 const hexColorToRgb = (hexColor) => {
@@ -208,3 +216,18 @@ const hexColorToRgb = (hexColor) => {
   ];
   return aRgb;
 }
+
+const isLightColor = (hexColor) => {
+  const [r, g, b] = hexColorToRgb(hexColor);
+  // HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+  hsp = Math.sqrt(
+    0.299 * (r * r) +
+    0.587 * (g * g) +
+    0.114 * (b * b)
+  );
+  console.log(hexColor, hsp);
+  // Using the HSP value, determine whether the color is light or dark
+  // we are only considering color that's really close to white here light color
+  return hsp > 235;
+}
+
