@@ -115,9 +115,9 @@ const insertRecentColorsSectionIntoMenu = (colorMenu, recentColors, isFg) => {
 
   const innerTable = document.createElement("table");
   innerTable.setAttribute("class", "docs-material-colorpalette-table");
-  innerTable.setAttribute("roleclass", "grid");
-  innerTable.setAttribute("cellspacingclass", "0");
-  innerTable.setAttribute("cellpaddingclass", "0");
+  innerTable.setAttribute("role", "grid");
+  innerTable.setAttribute("cellspacing", "0");
+  innerTable.setAttribute("cellpadding", "0");
 
   const tbody = document.createElement("tbody");
   tbody.setAttribute("class", "docs-material-colorpalette-body");
@@ -171,6 +171,7 @@ const toggleHighlightMatchingColorCell = (colorMenu, rgbColor, toggleOnOrOff) =>
   const matchingColorEl = colorMenu.querySelector(`[style=\"background-color: ${rgbColor}; user-select: none;\"]`);
   const classList = matchingColorEl.getAttribute("class").split(" ");
   
+  // TODO: dynamically set pacman mouth background color based on the cell color
   const selectedCls = "pacman";
 
   if (toggleOnOrOff === "on") {
