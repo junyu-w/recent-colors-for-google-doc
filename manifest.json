@@ -1,6 +1,6 @@
 {
   "name": "Recent Colors for Google Doc",
-  "description": "No longer need to struggle with finding the last color used with your bare eyes. I got you covered.",
+  "description": "Can't tell how green or blue your last selected color was? I feel your pain.",
   "version": "1.0",
   "manifest_version": 3,
   "background": {
@@ -11,9 +11,6 @@
     "tabs",
     "webRequest"
   ],
-  "action": {
-    "default_popup": "popup.html"
-  },
   "host_permissions": [
     "*://docs.google.com/"
   ],
@@ -24,5 +21,11 @@
       "js": ["content_script.js"],
       "css": ["content.css"]
     }
-  ]
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
 }

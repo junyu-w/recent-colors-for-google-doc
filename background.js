@@ -114,10 +114,8 @@ chrome.webRequest.onBeforeRequest.addListener(details => {
   if (details.method === "POST" && components[components.length - 1] === "save") {
     const commands = details.requestBody.formData.bundles;
     if (commands != null && commands != undefined) {
-      console.log("Commands: ", commands);
-
       const cmd = commands[0];
-      // TODO: sometimes this get fired for other commands too
+      // TODO: sometimes this get fired for other commands too?
       const fgc = getForegroundColor(cmd);
       const bgc = getBackgroundColor(cmd);
 

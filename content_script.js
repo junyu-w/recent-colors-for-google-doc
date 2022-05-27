@@ -225,7 +225,6 @@ const isLightColor = (hexColor) => {
     0.587 * (g * g) +
     0.114 * (b * b)
   );
-  console.log(hexColor, hsp);
   // Using the HSP value, determine whether the color is light or dark
   // we are only considering color that's really close to white here light color
   return hsp > 235;
