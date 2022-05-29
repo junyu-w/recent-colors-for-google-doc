@@ -6,6 +6,8 @@ https://user-images.githubusercontent.com/6601308/170847716-d43f39b8-6cca-4926-a
 
 ## How to use it?
 
+**NOTE**: Extension currently submitted for review - will update with links once it is published.
+
 Simply download the extension at the chrome extension store, and it'll be automatically enabled on every new Google Doc page that you open.
 
 ## FAQ
