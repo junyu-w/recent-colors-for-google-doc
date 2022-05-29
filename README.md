@@ -12,10 +12,14 @@ Simply download the extension at the chrome extension store, and it'll be automa
 
 ## FAQ
 
-Q: Why are recent colors hover-only?
+**Q: Why are recent colors hover-only?**
 
 A: While I have tried finding the matching color cell and call `.click()` on it, that doesn't seem to work. And coming up with my own click mechanism would mean decoding the command that's send with every click and I would need to interpret the currently selected text location as well (which I don't think is something that this extension should do). Because this is just a weekend project I did for fun, I simply wanted to create something that's intuitive enough to work with, without going through all the complexities. But if you have a way to make it work, your contribution would be greatly apprecaited!
 
-Q: Does it collect any data from the Google Doc page?
+**Q: Does it collect any data from the Google Doc page?**
 
 A: Nope, everything is completely on your local machine, there's no external packages used in this extension and no data collection scripts either.
+
+**Q: Will it extend to more Google products, like Google Sheets or Slides?**
+
+A: Maybe. Those two products do have "theme" that makes reusing colors easier, but if you think you really want this to be added there, submit an issue and if there's enough interest I'll work on it!
