@@ -82,10 +82,18 @@ const getGoogleDocIdFromUrl = url => {
 }
 
 const foregroundColorRegex = /"ts_fgc":"(#[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}$)"/gm;
+const foregroundDefaultColorRegex = /"ts_fgc_i":(true|false)/gm;
 const backgroundColorRegex = /"ts_bgc":"(#[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}$)"/gm;
 
 const getForegroundColor = (command) => {
-  return getFirstRegexMatch(foregroundColorRegex, command);
+  const color = getFirstRegexMatch(foregroundColorRegex, command);
+  if (color === null) {
+    const isDefault = getFirstRegexMatch(foregroundDefaultColorRegex, command);
+    if (isDefault === "true") {
+      return "#000000";
+    }
+  }
+  return color;
 }
 
 const getBackgroundColor = (command) => {
@@ -127,7 +135,7 @@ chrome.webRequest.onBeforeRequest.addListener(details => {
     }
   }
 }, {
-  urls: ["*://docs.google.com/document/d*"]
+  urls: ["*://docs.google.com/document*"]
 }, [
   "requestBody"
 ]);
